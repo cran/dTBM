@@ -1,0 +1,10 @@
+
+export(angle_iteration)
+export(select_r)
+export(sim_dTBM)
+export(wkmeans)
+
+importFrom("tensorregress", "as.tensor", "unfold","ttl","ttm")
+importFrom("EnvStats","rpareto")
+importFrom("WeightedCluster","wcKMedoids")
+importFrom("stats", "dist", "rbinom", "rnorm", "runif")

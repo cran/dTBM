@@ -1,0 +1,8 @@
+8cb813474d6a19789f973219bca54414 *DESCRIPTION
+6201df229493909d54c572e28930db8d *NAMESPACE
+7762e53a771bc2879c9831d2e77a373f *R/bricks.R
+a1ced4e1e750913fb1c835010436a235 *R/tensor_clustering.R
+a22512d5aff18388f94c1fcef45d1fed *man/angle_iteration.Rd
+c6ed524cddcdf35f18e1d96714b20e72 *man/select_r.Rd
+d04673227c199c7f79669123f4030b9e *man/sim_dTBM.Rd
+47d823ee0bbbc88eea5cb521c7ddd4ef *man/wkmeans.Rd
