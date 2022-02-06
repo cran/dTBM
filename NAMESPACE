@@ -1,5 +1,5 @@
-
 export(angle_iteration)
+export(dtbm)
 export(select_r)
 export(sim_dTBM)
 export(wkmeans)

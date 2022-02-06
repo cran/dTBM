@@ -9,7 +9,7 @@ wkmeans(Y, r, asymm)
 \arguments{
 \item{Y}{array/matrix, order-3 tensor/matrix observation}
 
-\item{r}{vector, the number of clusters on each mode; see "details"}
+\item{r}{vector, the cluster number on each mode; see "details"}
 
 \item{asymm}{logic variable, if "TRUE", assume the clustering assignment differs in different modes; if "FALSE", assume all the modes share the same clustering assignment}
 }
@@ -22,7 +22,7 @@ a list containing the following:
 }
 \description{
 Weighted higher-order initialization for multiway spherical clustering under degree-corrected tensor block model.
-This function takes the tensor/matrix observation, the number of clusters, and a logic variable indicating the symmetry
+This function takes the tensor/matrix observation, the cluster number, and a logic variable indicating the symmetry
 as input. Output is the estimated clustering assignment.
 }
 \details{
@@ -30,7 +30,7 @@ as input. Output is the estimated clustering assignment.
 
 all the elements in \code{r} should be integer larger than 1;
 
-matrix case and symmetric case only allow \code{r} with the same number of clusters on each mode;
+symmetric case only allow \code{r} with the same cluster number on each mode;
 
 observations with non-identical dimension on each mode are only applicable with \code{asymm = T}.
 }

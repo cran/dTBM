@@ -2,26 +2,26 @@
 % Please edit documentation in R/tensor_clustering.R
 \name{select_r}
 \alias{select_r}
-\title{Number of clusters selection}
+\title{Cluster number selection}
 \usage{
 select_r(Y, r_range, asymm = F)
 }
 \arguments{
 \item{Y}{array/matrix, order-3 Gaussian tensor/matrix observation}
 
-\item{r_range}{matrix, candidates for the number of clusters on each row; see "details"}
+\item{r_range}{matrix, candidates for the cluster number on each row; see "details"}
 
 \item{asymm}{logic variable, if "TRUE", clustering assignment differs in different modes; if "FALSE", all the modes share the same clustering assignment}
 }
 \value{
 a list containing the following:
 
-\code{r} {vector, the number of clusters among the candidates with minimal BIC value}
+\code{r} {vector, the cluster number among the candidates with minimal BIC value}
 
 \code{bic} {vector, the BIC value for each candidiate}
 }
 \description{
-Estimate the number of clusters in the degree-corrected tensor block model based on BIC criterion. The choice of BIC
+Estimate the cluster number in the degree-corrected tensor block model based on BIC criterion. The choice of BIC
 aims to balance between the goodness-of-fit for the data and the degree of freedom in the population model.
 This function is restricted for the Gaussian observation.
 }
@@ -30,7 +30,7 @@ This function is restricted for the Gaussian observation.
 
 all the elements in \code{r_range} should be integer larger than 1;
 
-matrix case and symmetric case only allow candidates with the same number of clusters on each mode;
+symmetric case only allow candidates with the same cluster number on each mode;
 
 observations with non-identical dimension on each mode are only applicable with \code{asymm = T}.
 }

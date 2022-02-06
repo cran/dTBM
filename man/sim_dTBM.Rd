@@ -30,7 +30,7 @@ sim_dTBM(
 
 \item{p}{vector, dimension of the tensor/matrix observation}
 
-\item{r}{vector, number of clusters on each mode}
+\item{r}{vector, cluster number on each mode}
 
 \item{core_control}{character, the way to control the generation of core tensor/matrix; see "details"}
 

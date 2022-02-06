@@ -1,12 +1,12 @@
 #' Weighted higher-order initialization
 #'
 #' Weighted higher-order initialization for multiway spherical clustering under degree-corrected tensor block model.
-#' This function takes the tensor/matrix observation, the number of clusters, and a logic variable indicating the symmetry
+#' This function takes the tensor/matrix observation, the cluster number, and a logic variable indicating the symmetry
 #' as input. Output is the estimated clustering assignment.
 #'
 #'
 #' @param Y     array/matrix, order-3 tensor/matrix observation
-#' @param r     vector, the number of clusters on each mode; see "details"
+#' @param r     vector, the cluster number on each mode; see "details"
 #' @param asymm logic variable, if "TRUE", assume the clustering assignment differs in different modes; if "FALSE", assume all the modes share the same clustering assignment
 #' @return a list containing the following:
 #'
@@ -18,7 +18,7 @@
 #'
 #' all the elements in \code{r} should be integer larger than 1;
 #'
-#' matrix case and symmetric case only allow \code{r} with the same number of clusters on each mode;
+#' symmetric case only allow \code{r} with the same cluster number on each mode;
 #'
 #' observations with non-identical dimension on each mode are only applicable with \code{asymm = T}.
 #'
@@ -46,12 +46,12 @@ wkmeans <- function(Y, r, asymm) {
   }
 
   if (imat == T & length(r) != 2) {
-    warning("need to input a length 2 vector for the number of clusters")
+    warning("need to input a length 2 vector for the cluster number", immediate. = T)
     return()
   }
 
   if (imat == F & length(r) != 3) {
-    warning("need to input a length 3 vector for the number of clusters")
+    warning("need to input a length 3 vector for the cluster number", immediate. = T)
     return()
   }
 
@@ -61,18 +61,18 @@ wkmeans <- function(Y, r, asymm) {
   if (imat == T) {
     r3 <- 1
 
-    if (r1 != r2) {
-      warning("matrix case requires the same number of clusters on two modes")
+    if( r1 != r2 & asymm == F){
+      warning("symmetric case requires the same cluster number on every mode", immediate. = T)
       return()
     }
 
     if (r1 <= 1 | r2 <= 1) {
-      warning("all the numbers of clusters should be larger than 1")
+      warning("all the numbers of clusters should be larger than 1", immediate. = T)
       return()
     }
 
     if (sum(dim(Y)[1:2]) / dim(Y)[1] != 2 & asymm == F) {
-      warning("use asymmetric algorithm for observation with non-identical dimension on each mode")
+      warning("use asymmetric algorithm for observation with non-identical dimension on each mode", immediate. = T)
       return()
     }
   } else if (imat == F) {
@@ -80,19 +80,19 @@ wkmeans <- function(Y, r, asymm) {
 
     if (asymm == F) {
       if (r1 != r2 | r2 != r3 | r1 != r3) {
-        warning("symmetric case requires the same number of clusters on every mode")
+        warning("symmetric case requires the same cluster number on every mode", immediate. = T)
         # r3 = r2 = r1 = min(c(r1,r2,r3))
         return()
       }
 
       if (sum(dim(Y)) / dim(Y)[1] != 3) {
-        warning("use asymmetric algorithm for observation with non-identical dimension on each mode")
+        warning("use asymmetric algorithm for observation with non-identical dimension on each mode", immediate. = T)
         return()
       }
     }
 
     if (r1 <= 1 | r2 <= 1 | r3 <= 1) {
-      warning("all the numbers of clusters should be larger than 1")
+      warning("all the numbers of clusters should be larger than 1", immediate. = T)
       return()
     }
   }
@@ -111,18 +111,48 @@ wkmeans <- function(Y, r, asymm) {
   # second SVD
 
   ##### for matrix case, second SVD asks r1 = r2
-  hu1 <- svd(unfold(ttl(Y, list(t(u2), t(u3)), ms = c(2, 3)), 1, c(3, 2))@data)$u[, 1:r1]
-  hu2 <- svd(unfold(ttl(Y, list(t(u1), t(u3)), ms = c(1, 3)), 2, c(1, 3))@data)$u[, 1:r2]
-  if (imat == F) {
-    hu3 <- svd(unfold(ttl(Y, list(t(u1), t(u2)), ms = c(1, 2)), 3, c(1, 2))@data)$u[, 1:r3]
-  } else if (imat == T) {
-    hu3 <- as.matrix(1)
+  # hu1 <- svd(unfold(ttl(Y, list(t(u2), t(u3)), ms = c(2, 3)), 1, c(3, 2))@data)$u[, 1:r1]
+  # hu2 <- svd(unfold(ttl(Y, list(t(u1), t(u3)), ms = c(1, 3)), 2, c(1, 3))@data)$u[, 1:r2]
+  # if (imat == F) {
+  #   hu3 <- svd(unfold(ttl(Y, list(t(u1), t(u2)), ms = c(1, 2)), 3, c(1, 2))@data)$u[, 1:r3]
+  # } else if (imat == T) {
+  #   hu3 <- as.matrix(1)
+  # }
+
+  # new U
+  # Ybar1 = unfold(ttl(Y, list(t(u2), t(u3)), ms = c(2, 3)), 1, c(3, 2))@data
+  # Ybar2 = unfold(ttl(Y, list(t(u1), t(u3)), ms = c(1, 3)), 2, c(1, 3))@data
+  # hu1 <- svd(Ybar1 %*% t(Ybar1))$u[, 1:r1]
+  # hu2 <- svd(Ybar2 %*% t(Ybar2))$u[, 1:r2]
+  # 
+  # if(imat == F){
+  #   Ybar3 = unfold(ttl(Y, list(t(u1), t(u2)), ms = c(1, 2)), 3, c(1, 2))@data
+  #   hu3 <- svd(Ybar3 %*% t(Ybar3))$u[, 1:r3]
+  # }else if(imat == T){
+  #   hu3 = as.matrix(1)
+  # }
+  
+  Ybar1 = unfold(ttl(Y, list(u2%*%t(u2), u3%*%t(u3)), ms = c(2, 3)), 1, c(3, 2))@data
+  Ybar2 = unfold(ttl(Y, list(u1%*% t(u1), u3%*%t(u3)), ms = c(1, 3)), 2, c(1, 3))@data
+  hu1 <- svd(Ybar1)$u[, 1:r1]
+  hu2 <- svd(Ybar2)$u[, 1:r2]
+  
+  if(imat == F){
+    Ybar3 = unfold(ttl(Y, list(u1%*%t(u1), u2%*%t(u2)), ms = c(1, 2)), 3, c(1, 2))@data
+    hu3 <- svd(Ybar3)$u[, 1:r3]
+  }else if(imat == T){
+    hu3 = as.matrix(1)
   }
 
   ### estimated X
-  X1 <- hu1 %*% t(hu1) %*% unfold(ttl(Y, list(hu2 %*% t(hu2), hu3 %*% t(hu3)), ms = c(2, 3)), 1, c(3, 2))@data
-  X2 <- hu2 %*% t(hu2) %*% unfold(ttl(Y, list(hu1 %*% t(hu1), hu3 %*% t(hu3)), ms = c(1, 3)), 2, c(1, 3))@data
-  X3 <- hu3 %*% t(hu3) %*% unfold(ttl(Y, list(hu1 %*% t(hu1), hu2 %*% t(hu2)), ms = c(1, 2)), 3, c(1, 2))@data
+  # X1 <- hu1 %*% t(hu1) %*% unfold(ttl(Y, list(hu2 %*% t(hu2), hu3 %*% t(hu3)), ms = c(2, 3)), 1, c(3, 2))@data
+  # X2 <- hu2 %*% t(hu2) %*% unfold(ttl(Y, list(hu1 %*% t(hu1), hu3 %*% t(hu3)), ms = c(1, 3)), 2, c(1, 3))@data
+  # X3 <- hu3 %*% t(hu3) %*% unfold(ttl(Y, list(hu1 %*% t(hu1), hu2 %*% t(hu2)), ms = c(1, 2)), 3, c(1, 2))@data
+
+  # reduced tensor
+  X1 <- hu1 %*% t(hu1) %*% unfold(ttl(Y, list(t(hu2), t(hu3)), ms = c(2, 3)), 1, c(3, 2))@data
+  X2 <- hu2 %*% t(hu2) %*% unfold(ttl(Y, list(t(hu1), t(hu3)), ms = c(1, 3)), 2, c(1, 3))@data
+  X3 <- hu3 %*% t(hu3) %*% unfold(ttl(Y, list(t(hu1), t(hu2)), ms = c(1, 2)), 3, c(1, 2))@data
 
   if (asymm == T) {
     res1 <- single_wkmeans(X1, r1)
@@ -229,13 +259,13 @@ angle_iteration = function(Y, z0, max_iter, alpha1 = 0.01, asymm){
     imat <- T
 
     if(sum(dim(Y)[1:2])/dim(Y)[1] != 2 & asymm == F){
-      warning("use asymmetric algorithm for observation with non-identical dimension on each mode")
+      warning("use asymmetric algorithm for observation with non-identical dimension on each mode", immediate. = T)
       return()
     }
   }
 
   if(sum(dim(Y))/dim(Y)[1] != 3 & asymm == F & imat == F){
-    warning("use asymmetric algorithm for observation with non-identical dimension on each mode")
+    warning("use asymmetric algorithm for observation with non-identical dimension on each mode", immediate. = T)
     return()
   }
 
@@ -324,6 +354,58 @@ angle_iteration = function(Y, z0, max_iter, alpha1 = 0.01, asymm){
   return(list(z = z, s_deg = s_deg))
 }
 
+#' Multiway spherical clustering for degree-corrected tensor block model
+#'
+#' Multiway spherical clustering for degree-corrected tensor block model including weighted higher-order initialization 
+#' and angle-based iteration. Main function in the package. This function takes the tensor/matrix observation,  the cluster number, and a logic variable indicating the symmetry
+#' as input. Output contains initial and refined clustering assignment.
+#' 
+#'
+#' @param Y         array/matrix, order-3 tensor/matrix observation
+#' @param r         vector, the cluster number on each mode; see "details"
+#' @param max_iter  integer, max number of iterations if update does not converge
+#' @param alpha1    number, substitution of degenerate core tensor; see "details"
+#' @param asymm     logic variable, if "TRUE", assume the clustering assignment differs in different modes; if "FALSE", assume all the modes share the same clustering assignment
+#' 
+#' @return a list containing the following:
+#'
+#' \code{z} {a list of vectors recording the refined clustering assignment with initialization \code{z0}}
+#'
+#' \code{s_deg} {logic variable, if "TRUE", degenerate estimated core tensor/matrix occurs during the iteration; if "FALSE", otherwise}
+#' 
+#' \code{z0} { a list of vectors recording the initial clustering assignment }
+#'
+#' \code{s0} { a list of vectors recording the index of degenerate entities with random clustering assignment in initialization}
+#'
+#' 
+#' 
+#' @details   \code{r} should be a length 2 vector for matrix and length 3 vector for tensor observation;
+#'
+#' all the elements in \code{r} should be integer larger than 1;
+#'
+#' symmetric case only allow \code{r} with the same cluster number on each mode;
+#'
+#' observations with non-identical dimension on each mode are only applicable with \code{asymm = T}.
+#'
+#' When the estimated core tensor has a degenerate slice during iteration, i.e., a slice with all zero elements, randomly pick an entry in the degenerate slice with value \code{alpha1}.
+#'
+#' @export
+#' @examples
+#' test_data = sim_dTBM(seed = 1, imat = FALSE, asymm = FALSE, p = c(50,50,50), r = c(3,3,3),
+#'                     core_control = "control", s_min = 0.05, s_max = 1,
+#'                     dist = "normal", sigma = 0.5,
+#'                     theta_dist = "pareto", alpha = 4, beta = 3/4)
+#'
+#' result = dtbm(test_data$Y, r = c(3,3,3), max_iter = 20, asymm = FALSE)
+
+
+dtbm = function(Y, r,  max_iter, alpha1 = 0.01, asymm){
+  
+  initial = wkmeans(Y,r,asymm)
+  iteration = angle_iteration(Y, initial$z0, max_iter, alpha1, asymm)
+  
+  return(list(z = iteration$z, s_deg = iteration$s_deg, z0 = initial$z0, s0 = initial$s0))
+}
 
 #' Simulation of degree-corrected tensor block models
 #'
@@ -333,7 +415,7 @@ angle_iteration = function(Y, z0, max_iter, alpha1 = 0.01, asymm){
 #' @param imat          logic variable, if "TRUE", generate matrix data; if "FALSE", generate order-3 tensor data
 #' @param asymm         logic variable, if "TRUE", clustering assignment differs in different modes; if "FALSE", all the modes share the same clustering assignment
 #' @param p             vector, dimension of the tensor/matrix observation
-#' @param r             vector, number of clusters on each mode
+#' @param r             vector, cluster number on each mode
 #' @param core_control  character, the way to control the generation of core tensor/matrix; see "details"
 #' @param delta         number, Frobenius norm of the slices in core tensor if \code{core_control = "control"}
 #' @param s_min         number, value of off-diagonal elements in original core tensor/matrix if \code{core_control = "control"}
@@ -409,29 +491,29 @@ sim_dTBM = function(seed = NA,imat = F,asymm = F, p, r,
   if(asymm == F){
 
     if(sum(p)/p[1] != 3 & imat == F){
-      warning("all the modes share the same dimension in symmetric case")
+      warning("all the modes share the same dimension in symmetric case", immediate. = T)
       return()
     }
 
     if(sum(p)/p[1] != 2 & imat == T){
-      warning("all the modes share the same dimension in symmetric case")
+      warning("all the modes share the same dimension in symmetric case", immediate. = T)
       return()
     }
 
     if(sum(r)/r[1] != 3 & imat == F){
-      warning("all the modes share the same number of clusters in symmetric case")
+      warning("all the modes share the same cluster number in symmetric case", immediate. = T)
       return()
     }
 
     if(sum(r)/r[1] != 2 & imat == T){
-      warning("all the modes share the same number of clusters in symmetric case")
+      warning("all the modes share the same cluster number in symmetric case", immediate. = T)
       return()
     }
   }
 
   if(core_control == "control"){
     if(asymm == T){
-      warning("core control is only applicable for symmetric case")
+      warning("core control is only applicable for symmetric case", immediate. = T)
       return()
     }
 
@@ -502,19 +584,19 @@ sim_dTBM = function(seed = NA,imat = F,asymm = F, p, r,
 
 
 
-#' Number of clusters selection
+#' Cluster number selection
 #'
-#' Estimate the number of clusters in the degree-corrected tensor block model based on BIC criterion. The choice of BIC
+#' Estimate the cluster number in the degree-corrected tensor block model based on BIC criterion. The choice of BIC
 #' aims to balance between the goodness-of-fit for the data and the degree of freedom in the population model.
 #' This function is restricted for the Gaussian observation.
 #'
 #' @param Y         array/matrix, order-3 Gaussian tensor/matrix observation
-#' @param r_range   matrix, candidates for the number of clusters on each row; see "details"
+#' @param r_range   matrix, candidates for the cluster number on each row; see "details"
 #' @param asymm         logic variable, if "TRUE", clustering assignment differs in different modes; if "FALSE", all the modes share the same clustering assignment
 #'
 #' @return a list containing the following:
 #'
-#' \code{r} {vector, the number of clusters among the candidates with minimal BIC value}
+#' \code{r} {vector, the cluster number among the candidates with minimal BIC value}
 #'
 #' \code{bic} {vector, the BIC value for each candidiate}
 #'
@@ -522,7 +604,7 @@ sim_dTBM = function(seed = NA,imat = F,asymm = F, p, r,
 #'
 #' all the elements in \code{r_range} should be integer larger than 1;
 #'
-#' matrix case and symmetric case only allow candidates with the same number of clusters on each mode;
+#' symmetric case only allow candidates with the same cluster number on each mode;
 #'
 #' observations with non-identical dimension on each mode are only applicable with \code{asymm = T}.
 #'
@@ -555,15 +637,17 @@ select_r = function(Y,r_range,asymm = F){
   if(asymm == F){
 
     if(sum(rowSums(r_range)/r_range[,1]) != 3*dim(r_range)[1] & imat == F){
-      warning("all the modes share the same number of clusters in symmetric case")
+      warning("all the modes share the same cluster number in symmetric case", immediate. = T)
+      return()
+    }
+
+    if(sum(rowSums(r_range)/r_range[,1]) != 2*dim(r_range)[1] & imat == T){
+      warning("all the modes share the same cluster number in symmetric case", immediate. = T)
       return()
     }
   }
 
-  if(sum(rowSums(r_range)/r_range[,1]) != 2*dim(r_range)[1] & imat == T){
-    warning("all the modes share the same number of clusters in matrix case")
-    return()
-  }
+
 
 
   bic = rep(0,dim(r_range)[1])
