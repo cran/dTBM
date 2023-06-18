@@ -20,7 +20,7 @@
 #'
 #' symmetric case only allow \code{r} with the same cluster number on each mode;
 #'
-#' observations with non-identical dimension on each mode are only applicable with \code{asymm = T}.
+#' observations with non-identical dimension on each mode are only applicable with \code{asymm = TRUE}.
 #'
 #'
 #'
@@ -40,39 +40,39 @@ wkmeans <- function(Y, r, asymm) {
   imat <- F
 
   if (length(dim(Y)) == 2) {
-    cat("matrix case \n")
+    message("matrix case \n")
     dim(Y) <- c(dim(Y), 1)
-    imat <- T
+    imat <- TRUE
   }
 
-  if (imat == T & length(r) != 2) {
-    warning("need to input a length 2 vector for the cluster number", immediate. = T)
+  if (imat == TRUE & length(r) != 2) {
+    warning("need to input a length 2 vector for the cluster number", immediate. = TRUE)
     return()
   }
 
   if (imat == F & length(r) != 3) {
-    warning("need to input a length 3 vector for the cluster number", immediate. = T)
+    warning("need to input a length 3 vector for the cluster number", immediate. = TRUE)
     return()
   }
 
   r1 <- r[1]
   r2 <- r[2]
 
-  if (imat == T) {
+  if (imat == TRUE) {
     r3 <- 1
 
     if( r1 != r2 & asymm == F){
-      warning("symmetric case requires the same cluster number on every mode", immediate. = T)
+      warning("symmetric case requires the same cluster number on every mode", immediate. = TRUE)
       return()
     }
 
     if (r1 <= 1 | r2 <= 1) {
-      warning("all the numbers of clusters should be larger than 1", immediate. = T)
+      warning("all the numbers of clusters should be larger than 1", immediate. = TRUE)
       return()
     }
 
     if (sum(dim(Y)[1:2]) / dim(Y)[1] != 2 & asymm == F) {
-      warning("use asymmetric algorithm for observation with non-identical dimension on each mode", immediate. = T)
+      warning("use asymmetric algorithm for observation with non-identical dimension on each mode", immediate. = TRUE)
       return()
     }
   } else if (imat == F) {
@@ -80,19 +80,19 @@ wkmeans <- function(Y, r, asymm) {
 
     if (asymm == F) {
       if (r1 != r2 | r2 != r3 | r1 != r3) {
-        warning("symmetric case requires the same cluster number on every mode", immediate. = T)
+        warning("symmetric case requires the same cluster number on every mode", immediate. = TRUE)
         # r3 = r2 = r1 = min(c(r1,r2,r3))
         return()
       }
 
       if (sum(dim(Y)) / dim(Y)[1] != 3) {
-        warning("use asymmetric algorithm for observation with non-identical dimension on each mode", immediate. = T)
+        warning("use asymmetric algorithm for observation with non-identical dimension on each mode", immediate. = TRUE)
         return()
       }
     }
 
     if (r1 <= 1 | r2 <= 1 | r3 <= 1) {
-      warning("all the numbers of clusters should be larger than 1", immediate. = T)
+      warning("all the numbers of clusters should be larger than 1", immediate. = TRUE)
       return()
     }
   }
@@ -254,7 +254,7 @@ angle_iteration = function(Y, z0, max_iter, alpha1 = 0.01, asymm){
 
   # z0 should be a list
   if (length(dim(Y)) == 2) {
-    cat("matrix case \n")
+    message("matrix case \n")
     dim(Y) <- c(dim(Y), 1)
     imat <- T
 
@@ -275,7 +275,7 @@ angle_iteration = function(Y, z0, max_iter, alpha1 = 0.01, asymm){
   }
 
   for (iter in 1:max_iter) {
-    cat("iter = ", iter, "\n")
+    message("iter = ", iter, "\n")
 
     # estimate S
     est_S <- updateS(Y, z, imat)
@@ -473,7 +473,7 @@ dtbm = function(Y, r,  max_iter, alpha1 = 0.01, asymm){
 #'                     dist = "normal", sigma = 0.5,
 #'                     theta_dist = "pareto", alpha = 4, beta = 3/4)
 
-sim_dTBM = function(seed = NA,imat = F,asymm = F, p, r,
+sim_dTBM = function(seed = NA,imat = FALSE,asymm = FALSE, p, r,
                     core_control = c("random", "control"), delta = NULL, s_min = NULL, s_max =NULL,
                     dist = c("normal", "binary"), sigma = 1,
                     theta_dist = c("abs_normal", "pareto", "non"), alpha = NULL, beta = NULL){
@@ -483,7 +483,7 @@ sim_dTBM = function(seed = NA,imat = F,asymm = F, p, r,
   if (is.na(seed) == FALSE) set.seed(seed)
 
   if(imat == T){
-    cat("generate matrix data \n")
+    message("generate matrix data \n")
     r = r[1:2]
     p = p[1:2]
   }
@@ -620,12 +620,12 @@ sim_dTBM = function(seed = NA,imat = F,asymm = F, p, r,
 #' selection <- select_r(test_data$Y, r_range, asymm = FALSE)
 
 
-select_r = function(Y,r_range,asymm = F){
+select_r = function(Y,r_range,asymm = FALSE){
 
   imat = F
 
   if (length(dim(Y)) == 2) {
-    cat("matrix case \n")
+    message("matrix case \n")
     imat <- T
 
 
@@ -656,7 +656,7 @@ select_r = function(Y,r_range,asymm = F){
   for (i in 1:dim(r_range)[1]) {
 
     r =  r_range[i,]
-    cat("given r = ",r, "\n")
+    message("given r = ",r, "\n")
 
     # obtain z_hat
     initial = wkmeans(Y, r, asymm = asymm)

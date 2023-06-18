@@ -1,5 +1,5 @@
 ########## Bricks for dTBM ############
-library(tensorregress)
+# library(tensorregress)
 library(WeightedCluster) # wcKMedoids
 library(EnvStats) # patero
 

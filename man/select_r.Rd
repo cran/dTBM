@@ -4,7 +4,7 @@
 \alias{select_r}
 \title{Cluster number selection}
 \usage{
-select_r(Y, r_range, asymm = F)
+select_r(Y, r_range, asymm = FALSE)
 }
 \arguments{
 \item{Y}{array/matrix, order-3 Gaussian tensor/matrix observation}
@@ -32,7 +32,7 @@ all the elements in \code{r_range} should be integer larger than 1;
 
 symmetric case only allow candidates with the same cluster number on each mode;
 
-observations with non-identical dimension on each mode are only applicable with \code{asymm = T}.
+observations with non-identical dimension on each mode are only applicable with \code{asymm = TRUE}.
 }
 \examples{
 

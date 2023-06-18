@@ -6,8 +6,8 @@
 \usage{
 sim_dTBM(
   seed = NA,
-  imat = F,
-  asymm = F,
+  imat = FALSE,
+  asymm = FALSE,
   p,
   r,
   core_control = c("random", "control"),
@@ -53,11 +53,11 @@ sim_dTBM(
 \value{
 a list containing the following:
 
-\code{Y} {array ( if \code{imat = F} )/matrix ( if \code{imat = T} ), simulated tensor/matrix observations with dimension \code{p}  }
+\code{Y} {array ( if \code{imat = FALSE} )/matrix ( if \code{imat = TRUE} ), simulated tensor/matrix observations with dimension \code{p}  }
 
-\code{X} {array ( if \code{imat = F} )/matrix ( if \code{imat = T} ), mean tensor/matrix of the observation, i.e., the expectation of \code{Y}}
+\code{X} {array ( if \code{imat = FALSE} )/matrix ( if \code{imat = TRUE} ), mean tensor/matrix of the observation, i.e., the expectation of \code{Y}}
 
-\code{S} {array ( if \code{imat = F} )/matrix ( if \code{imat = T} ), core tensor/matrix recording the block effects with dimension \code{r}}
+\code{S} {array ( if \code{imat = FALSE} )/matrix ( if \code{imat = TRUE} ), core tensor/matrix recording the block effects with dimension \code{r}}
 
 \code{theta} {a list of vectors, degree heterogeneity on each mode}
 
@@ -75,15 +75,15 @@ where \code{S} is the core tensor, \code{Thetak} is a diagonal matrix with eleme
 \code{Mk} is the membership matrix based on the clustering assignment in the \code{k}-th vector of \code{z} with \code{r[k]} clusters,
 \code{E} is the mean-zero noise tensor, and \code{xk} refers to the matrix-by-tensor product on the \code{k}-th mode, for \code{k = 1,2,3}.
 
-If \code{imat = T}, \code{Y,S,E} degenerate to matrix and \code{Y = Theta1 M1 S M2^T Theta2^T + E}.
+If \code{imat = TRUE}, \code{Y,S,E} degenerate to matrix and \code{Y = Theta1 M1 S M2^T Theta2^T + E}.
 
-If \code{asymm = F}, \code{Thetak = Theta} and \code{Mk = M} for all \code{k = 1,2,3}.
+If \code{asymm = FALSE}, \code{Thetak = Theta} and \code{Mk = M} for all \code{k = 1,2,3}.
 
 \code{core_control} specifies the way to generate \code{S}:
 
 If \code{core_control = "control"}, first generate \code{S} as a diagonal tensor/matrix with diagonal elements \code{s_max} and off-diagonal elements \code{s_min};
 then scale the original core such that Frobenius norm of the slices equal to \code{delta}, i.e, \code{delta = sqrt(sum(S[1,,]^2))} or \code{delta = sqrt(sum(S[1,]^2))};
-ignore the scaling if \code{delta = NULL}; option \code{"control"} is only applicable for symmetric case \code{asymm = F}.
+ignore the scaling if \code{delta = NULL}; option \code{"control"} is only applicable for symmetric case \code{asymm = FALSE}.
 
 If \code{core_control = "random"}, generate \code{S} with random entries following uniform distribution U(0,1).
 
